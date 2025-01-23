@@ -22,4 +22,7 @@ sqlc:
 test:
 	go test -v -cover ./...
 
+server:
+	go run main.go
+
 .PHONY: postgres_start postgres_create create_db drop_db migrate_up migrate_down test
