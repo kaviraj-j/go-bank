@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 
 	"github.com/kaviraj-j/go-bank/api"
@@ -25,9 +24,6 @@ func main() {
 	}
 	store := db.NewStore(conn)
 	server := api.NewServer(store)
-	fmt.Println("======")
-	fmt.Println(config.ServerAddress)
-	fmt.Println("======")
 	err = server.Start(config.ServerAddress)
 	if err != nil {
 		log.Fatal("cannot start server", err)
