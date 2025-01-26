@@ -14,12 +14,12 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-func randomInt(min, max int64) int64 {
+func RandomInt(min, max int64) int64 {
 	return min + rand.Int63n(max-min+1)
 }
 
 func randomFloat(min, max float64) float64 {
-	return float64(randomInt(int64(min), int64(max))) + rand.Float64()
+	return float64(RandomInt(int64(min), int64(max))) + rand.Float64()
 }
 
 func randomString(stringLength int) string {
