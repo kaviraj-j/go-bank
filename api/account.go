@@ -2,10 +2,12 @@ package api
 
 import (
 	"database/sql"
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	db "github.com/kaviraj-j/go-bank/db/sqlc"
+	"github.com/lib/pq"
 )
 
 type createAccountRequestParams struct {
@@ -29,6 +31,18 @@ func (server *Server) createAccount(ctx *gin.Context) {
 	account, err := server.store.CreateAccount(ctx, arg)
 
 	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok {
+			switch pqErr.Code.Name() {
+			case "foreign_key_violation":
+				ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("invalid owner")))
+				return
+
+			case "unique_violation":
+				ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("account with the same currency exists")))
+				return
+			}
+
+		}
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
