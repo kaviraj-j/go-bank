@@ -23,7 +23,7 @@ func randomFloat(min, max float64) float64 {
 	return float64(RandomInt(int64(min), int64(max))) + rand.Float64()
 }
 
-func randomString(stringLength int) string {
+func RandomString(stringLength int) string {
 	var sb strings.Builder
 	alphabetsLength := len(alphabets)
 	for i := 0; i < stringLength; i++ {
@@ -34,7 +34,7 @@ func randomString(stringLength int) string {
 }
 
 func RandomOwner() string {
-	return randomString(8)
+	return RandomString(8)
 }
 
 func RandomAmount() string {
