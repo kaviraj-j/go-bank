@@ -3,10 +3,12 @@ package api
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	db "github.com/kaviraj-j/go-bank/db/sqlc"
+	"github.com/kaviraj-j/go-bank/token"
 	"github.com/lib/pq"
 )
 
@@ -22,8 +24,10 @@ func (server *Server) createAccount(ctx *gin.Context) {
 		return
 	}
 
+	authPaylod := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+
 	arg := db.CreateAccountParams{
-		Owner:    req.Owner,
+		Owner:    authPaylod.Username,
 		Balance:  "0",
 		Currency: req.Currency,
 	}
@@ -61,6 +65,7 @@ func (server *Server) getAccount(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
+
 	account, err := server.store.GetAccount(ctx, req.ID)
 
 	if err != nil {
@@ -70,6 +75,12 @@ func (server *Server) getAccount(ctx *gin.Context) {
 		}
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
+	}
+
+	authPaylod := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+
+	if account.Owner != authPaylod.Username {
+		ctx.JSON(http.StatusUnauthorized, errorResponse(fmt.Errorf("you are not authorized to get this account")))
 	}
 
 	ctx.JSON(http.StatusOK, account)
@@ -87,7 +98,10 @@ func (server *Server) getAccounts(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
+	authPaylod := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+
 	arg := db.GetAccountsParams{
+		Owner:  authPaylod.Username,
 		Limit:  req.PageSize,
 		Offset: (req.PageID - 1) * req.PageSize,
 	}
